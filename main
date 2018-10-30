@@ -1,0 +1,15 @@
+#include <iostream>
+#include <fstream>
+#include <cmath>
+#include "EMGfunctions.h"
+
+using namespace std;
+
+int main(){
+	double EMG[4000];
+
+	int fileSize = LoadData("healthy.txt", EMG);
+
+	system("PAUSE");
+	return (0);
+}
