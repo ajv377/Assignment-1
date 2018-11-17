@@ -1,0 +1,168 @@
+
+#include <iostream>
+#include <fstream>
+#include <cmath>
+#include <string>
+
+using namespace std;
+
+#define MAX_COL 17
+#define MAX_ROW 21
+
+int numberOfCol(string filename);
+int numberOfRow(string filename);
+void transferData(double **tempDrop, int *temp, int *wind, string filename, int row, int col);
+double findWindChill(int userTemp, int userWind, double **tempDrop, int *temp, int *wind, int row, int col);
+
+int main(){
+
+	cout << "Welcome to the Wind Chill program" << endl;
+	cout << "This program will provide to you wind chill temperature given the air temperature and windspeed" << endl;
+	cout << endl;
+
+	double airTemp, windSpeed;
+
+	string filename;
+	cout << "Please enter the name of the file:" << endl;
+	cin >> filename;
+	cout << endl;
+
+	int col = numberOfCol(filename);
+	int row = numberOfRow(filename);
+
+	int *temp = new int[col];
+	int *wind = new int[row];
+	double **tempDrop = new double*[row];
+	for (int i = 0; i < row; i++)
+		tempDrop[i] = new double[col];
+
+	transferData(tempDrop, temp, wind, filename, row, col);
+
+	cout << "To exit the program, please input '1' when entering the air temperature" << endl;
+
+	while (1) {
+		cout << "Please enter the air temperature: ";
+		cin >> airTemp;
+
+		if (airTemp == 1)
+			break;
+
+		cout << "Please enter the wind speed: ";
+		cin >> windSpeed;
+
+		cout << "The wind chill speed is: " <<findWindChill(airTemp, windSpeed, tempDrop, temp, wind, row, col) << endl;
+		cout << endl;
+	}
+
+	delete tempDrop, wind, temp;
+	system("PAUSE");
+	return (0);
+}
+
+int numberOfCol(string filename){
+	ifstream infile;
+	infile.open(filename, ios::in);
+
+	if (infile.fail()){
+		cerr << "Error opening file";
+		exit(-1);
+	}
+	int counter = 1;
+	char character='w';
+
+	while (character != '\n'){
+		infile.get(character);
+		if (character == ' ')
+			counter++;
+	}
+
+	infile.close();
+	if (counter > MAX_COL){
+		cout << "ERROR! FILE EXCEEDS MAXIMUM COLUMNS!";
+		exit(-1);
+	}
+	return counter;
+}
+
+int numberOfRow(string filename){
+	ifstream infile;
+	infile.open(filename, ios::in);
+
+	if (infile.fail()){
+		cerr << "Error opening file";
+		exit(-1);
+	}
+	string str;
+	getline(infile,str);
+
+	int counter = 1;
+	char character = 'a';
+
+	while (character != '\n'){
+		infile.get(character);
+		if (character == ' ')
+			counter++;
+	}
+
+	infile.close();
+	if (counter > MAX_ROW){
+		cout << "ERROR! FILE EXCEEDS MAXIMUM ROWS!";
+		exit(-1);
+	}
+	return counter;
+}
+
+void transferData(double **tempDrop, int *temp, int *wind, string filename, int row, int col){
+	ifstream infile;
+	infile.open(filename, ios::in);
+
+	if (infile.fail()){
+		cerr << "Error opening file";
+		exit(-1);
+	}
+
+	for (int i = 0; i < col; i++){
+		infile >> temp[i];
+	}
+	for (int i = 0; i < row; i++){
+		infile >> wind[i];
+	}
+
+	for (int r = 0; r < row; r++){
+		for (int c = 0; c < col; c++){
+			infile >> tempDrop[r][c];
+		}
+	}
+}
+
+double findWindChill(int userTemp, int userWind, double **tempDrop, int *temp, int *wind, int row, int col){
+	int closestTemp = 0;
+	int closestWind = 0;
+
+	for (int i = 0; i < col; i++){
+		if (userTemp <= temp[i])
+			closestTemp = i;
+	}
+	if (closestTemp != 0){
+		double midpoint = (temp[closestTemp] + temp[closestTemp - 1]) / 2;
+
+		if (userTemp < midpoint)
+			closestTemp--;
+	}
+	cout << closestTemp << endl;
+	for (int i = 0; i < row; i++){
+		if (userWind >= wind[i])
+			closestWind = i;
+	}
+	
+	if (closestWind != 0){
+		double midpoint = (wind[closestWind] + wind[closestTemp - 1]) / 2;
+
+		if (userWind > midpoint)
+			closestWind++;
+	}
+	cout << closestWind << endl;
+	return userTemp - tempDrop[closestTemp][closestWind];
+
+}
+
