@@ -12,7 +12,7 @@ using namespace std;
 int numberOfCol(string filename);
 int numberOfRow(string filename);
 void transferData(double **tempDrop, int *temp, int *wind, string filename, int row, int col);
-double findWindChill(int userTemp, int userWind, double **tempDrop, int *temp, int *wind, int row, int col);
+double findWindChill(double userTemp, double userWind, double **tempDrop, int *temp, int *wind, int row, int col);
 
 int main(){
 
@@ -24,7 +24,7 @@ int main(){
 
 	string filename = "chillAll.txt";
 	cout << "Please enter the name of the file:" << endl;
-	/*cin >> filename;*/
+	cin >> filename;
 	cout << endl;
 
 	int col = numberOfCol(filename);
@@ -56,18 +56,36 @@ int main(){
 	//cout << tempdrop[20][16];
 
 	cout << "To exit the program, please input '1' when entering the air temperature" << endl;
-
+	cout << *tempDrop[0];
 	while (1) {
-		cout << "Please enter the air temperature: ";
-		cin >> airTemp;
+		cout << "Please enter an air temperature: ";
+
+		while (1){
+			cin >> airTemp;
+			if (airTemp <= temp[0] && airTemp >= temp[col])
+				break;
+			cout << "Please enter a valid air temperature: ";
+		}
 
 		if (airTemp == 1)
 			break;
 
 		cout << "Please enter the wind speed: ";
-		cin >> windSpeed;
 
-		cout << "The wind chill speed is: " <<findWindChill(airTemp, windSpeed, tempDrop, temp, wind, row, col) << endl;
+		while (1){
+			cin >> windSpeed;
+			if (windSpeed >= wind[0] && windSpeed <= wind[col])
+				break;
+			cout << "Please enter a valid wind speed: ";
+		}
+
+		cout << endl;
+		cout << endl;
+		cout << endl;
+
+		cout << "The air temperature is: " << airTemp << endl;
+		cout << "The wind speed is: " << windSpeed << endl;
+		cout << "The wind chill speed is: " << findWindChill(airTemp, windSpeed, tempDrop, temp, wind, row, col) << endl;
 		cout << endl;
 	}
 
@@ -85,7 +103,7 @@ int numberOfCol(string filename){
 		exit(-1);
 	}
 	int counter = 1;
-	char character='w';
+	char character = 'w';
 
 	while (character != '\n'){
 		infile.get(character);
@@ -110,7 +128,7 @@ int numberOfRow(string filename){
 		exit(-1);
 	}
 	string str;
-	getline(infile,str);
+	getline(infile, str);
 
 	int counter = 1;
 	char character = 'a';
@@ -152,65 +170,63 @@ void transferData(double **tempDrop, int *temp, int *wind, string filename, int 
 	}
 }
 // Calculates Wind Chill Value
-double findWindChill(int userTemp, int userWind, double **tempDrop, int *temp, int *wind, int row, int col){
+double findWindChill(double userTemp, double userWind, double **tempDrop, int *temp, int *wind, int row, int col){
 	int closestTemp = 0;
 	int closestWind = 0;
 
-	//for (int i = 0; i < col; i++){
-	//	if (temp[i] >= userTemp)
-	//		closestTemp = i;
-	//}
-	//if (temp[closestTemp] != userTemp){
-	//	double midpoint = (temp[closestTemp] + temp[closestTemp - 1]) / 2;
-
-	//	if (userTemp < midpoint)
-	//		closestTemp--;
-	//}
-	//cout << closestTemp << endl;
-	//for (int i = 0; i < row; i++){
-	//	if (userWind >= wind[i])
-	//		closestWind = i;
-	//}
-	//
-	//if (wind[closestWind] != userWind){
-	//	double midpoint = (wind[closestWind] + wind[closestTemp - 1]) / 2;
-
-	//	if (userWind > midpoint)
-	//		closestWind++;
-	//}
-	//cout << closestWind << endl;
-
-	for (int i = 0; i < col - 1; i++){
-		if ((userTemp <= temp[i]) && (userTemp > temp[i + 1])){
-			cout << i << endl;
-			cout << temp[i] << " " << temp[i + 1] << endl;
-			double midpoint = ((double)temp[i] + (double)temp[i + 1]) / 2.0;
-			cout << midpoint;
-			if (midpoint < userTemp)
-				closestTemp = i;
-			else if (midpoint > userTemp)
-				closestTemp = i + 1;
-			cout << closestTemp << endl;
-
-		}
-			
+	for (int i = 0; i < col; i++){
+		if (temp[i] >= userTemp)
+			closestTemp = i;
 	}
-
-
-
-	for (int i = 0; i < row - 1; i++){
-		if (userWind >= wind[i] && userWind < wind[i + 1]){
-			double midpoint = (wind[i] + wind[i + 1]) / 2;
-			if (midpoint > userWind)
-				closestWind = i;
-			else if (midpoint < userWind)
-				closestWind = i + 1;
-		}
+	if (temp[closestTemp] != userTemp){
+		double midpoint = (double)(temp[closestTemp] + temp[closestTemp + 1]) / 2.0;
+		if (userTemp < midpoint)
+			closestTemp++;
+	}
+	for (int i = 0; i < row; i++){
+		if (userWind >= wind[i])
+			closestWind = i;
 	}
 	
-	cout << closestWind << endl;
+	if (wind[closestWind] != userWind){
+		double midpoint = (wind[closestWind] + wind[closestWind + 1]) / 2.0;
+		if (userWind >= midpoint)
+			closestWind++;
+	}
+	cout << "Temp: " << closestTemp << endl;
+	cout << "Wind: " << closestWind << endl;
+
+
+
+
+	//for (int i = 0; i < col - 1; i++){
+	//	if ((userTemp <= temp[i]) && (userTemp > temp[i + 1])){
+	//		cout << i << endl;
+	//		cout << temp[i] << " " << temp[i + 1] << endl;
+	//		double midpoint = (temp[i] + temp[i + 1]) / 2.0;
+	//		cout << midpoint;
+	//		if (midpoint < userTemp)
+	//			closestTemp = i;
+	//		else if (midpoint > userTemp)
+	//			closestTemp = i + 1;
+	//		cout << closestTemp << endl;
+
+	//	}
+
+	//}
+
+
+
+	//for (int i = 0; i < row - 1; i++){
+	//	if (userWind >= wind[i] && userWind < wind[i + 1]){
+	//		double midpoint = (wind[i] + wind[i + 1]) / 2;
+	//		if (midpoint > userWind)
+	//			closestWind = i;
+	//		else if (midpoint < userWind)
+	//			closestWind = i + 1;
+	//	}
+	//}
 
 	return userTemp - tempDrop[closestWind][closestTemp];
 
 }
-
