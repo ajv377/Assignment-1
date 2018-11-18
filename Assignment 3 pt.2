@@ -1,4 +1,3 @@
-
 #include <iostream>
 #include <fstream>
 #include <cmath>
@@ -15,18 +14,18 @@ void transferData(double **tempDrop, int *temp, int *wind, string filename, int 
 double findWindChill(double userTemp, double userWind, double **tempDrop, int *temp, int *wind, int row, int col);
 
 int main(){
-
+    
 	cout << "Welcome to the Wind Chill program" << endl;
 	cout << "This program will provide to you wind chill temperature given the air temperature and windspeed" << endl;
 	cout << endl;
-
+    
 	double airTemp, windSpeed;
-
+    
 	string filename = "chillAll.txt";
 	cout << "Please enter the name of the file:" << endl;
 	cin >> filename;
 	cout << endl;
-
+    
 	int col = numberOfCol(filename);
 	int row = numberOfRow(filename);
 	int *temp = new int[col];
@@ -34,10 +33,10 @@ int main(){
 	double **tempDrop = new double*[row];
 	for (int i = 0; i < row; i++)
 		tempDrop[i] = new double[col];
-
+    
 	transferData(tempDrop, temp, wind, filename, row, col);
-
-
+    
+    
 	//for (int i = 0; i < col; i++){
 	//	cout << temp[i] << " ";
 	//}
@@ -52,43 +51,46 @@ int main(){
 	//	}
 	//	cout << endl;
 	//}
-
+    
 	//cout << tempdrop[20][16];
-
+    
 	cout << "To exit the program, please input '1' when entering the air temperature" << endl;
 	cout << *tempDrop[0];
 	while (1) {
 		cout << "Please enter an air temperature: ";
-
+        
+        
+        //Will keep asking the user to enter an air temperature that is valid
 		while (1){
 			cin >> airTemp;
 			if (airTemp <= temp[0] && airTemp >= temp[col])
 				break;
 			cout << "Please enter a valid air temperature: ";
 		}
-
+        
 		if (airTemp == 1)
 			break;
-
+        
 		cout << "Please enter the wind speed: ";
-
+        
+        //Will keep asking the user to enter a wind speed that is valid
 		while (1){
 			cin >> windSpeed;
 			if (windSpeed >= wind[0] && windSpeed <= wind[col])
 				break;
 			cout << "Please enter a valid wind speed: ";
 		}
-
+        
 		cout << endl;
 		cout << endl;
 		cout << endl;
-
+        
 		cout << "The air temperature is: " << airTemp << endl;
 		cout << "The wind speed is: " << windSpeed << endl;
 		cout << "The wind chill speed is: " << findWindChill(airTemp, windSpeed, tempDrop, temp, wind, row, col) << endl;
 		cout << endl;
 	}
-
+    
 	delete tempDrop, wind, temp;
 	system("PAUSE");
 	return (0);
@@ -97,21 +99,24 @@ int main(){
 int numberOfCol(string filename){
 	ifstream infile;
 	infile.open(filename, ios::in);
-
+    
 	if (infile.fail()){
 		cerr << "Error opening file";
 		exit(-1);
 	}
 	int counter = 1;
 	char character = 'w';
-
+    
+    //Loop will stop until the end of line
 	while (character != '\n'){
 		infile.get(character);
 		if (character == ' ')
 			counter++;
 	}
-
+    
 	infile.close();
+    
+    //Checks if the file exceeds the maximum column size
 	if (counter > MAX_COL){
 		cout << "ERROR! FILE EXCEEDS MAXIMUM COLUMNS!";
 		exit(-1);
@@ -122,23 +127,27 @@ int numberOfCol(string filename){
 int numberOfRow(string filename){
 	ifstream infile;
 	infile.open(filename, ios::in);
-
+    
 	if (infile.fail()){
 		cerr << "Error opening file";
 		exit(-1);
 	}
+    
+    //Dumps the first line of the file into a dummy variable
 	string str;
 	getline(infile, str);
-
+    
 	int counter = 1;
 	char character = 'a';
-
+    
+    //Loop will stop until the end of the second line
 	while (character != '\n'){
 		infile.get(character);
 		if (character == ' ')
 			counter++;
 	}
-
+    
+    //Checks if file exceeds the maximum row size
 	infile.close();
 	if (counter > MAX_ROW){
 		cout << "ERROR! FILE EXCEEDS MAXIMUM ROWS!";
@@ -150,19 +159,23 @@ int numberOfRow(string filename){
 void transferData(double **tempDrop, int *temp, int *wind, string filename, int row, int col){
 	ifstream infile;
 	infile.open(filename, ios::in);
-
+    
 	if (infile.fail()){
 		cerr << "Error opening file";
 		exit(-1);
 	}
-
+    
+    //Transfers the first line of the file into temp array
 	for (int i = 0; i < col; i++){
 		infile >> temp[i];
 	}
+    
+    //Transfers the second line of the file into wind array
 	for (int i = 0; i < row; i++){
 		infile >> wind[i];
 	}
-
+    
+    //Transfers the rest of the file into tempDrop array
 	for (int r = 0; r < row; r++){
 		for (int c = 0; c < col; c++){
 			infile >> tempDrop[r][c];
@@ -171,13 +184,15 @@ void transferData(double **tempDrop, int *temp, int *wind, string filename, int 
 }
 // Calculates Wind Chill Value
 double findWindChill(double userTemp, double userWind, double **tempDrop, int *temp, int *wind, int row, int col){
-	int closestTemp = 0;
-	int closestWind = 0;
-
+	int closestTemp = 0; //Assumes the closestTemp value to userTemp is at index 0
+	int closestWind = 0; //Assumes the closestWind value to userWind is at index 0
+    
 	for (int i = 0; i < col; i++){
 		if (temp[i] >= userTemp)
 			closestTemp = i;
 	}
+    
+    //Finds the closest temp value to the userTemp value
 	if (temp[closestTemp] != userTemp){
 		double midpoint = (double)(temp[closestTemp] + temp[closestTemp + 1]) / 2.0;
 		if (userTemp < midpoint)
@@ -188,17 +203,19 @@ double findWindChill(double userTemp, double userWind, double **tempDrop, int *t
 			closestWind = i;
 	}
 	
+    //Finds the closest wind value to the userWind value
 	if (wind[closestWind] != userWind){
 		double midpoint = (wind[closestWind] + wind[closestWind + 1]) / 2.0;
 		if (userWind >= midpoint)
 			closestWind++;
 	}
+    
 	cout << "Temp: " << closestTemp << endl;
 	cout << "Wind: " << closestWind << endl;
-
-
-
-
+    
+    
+    
+    
 	//for (int i = 0; i < col - 1; i++){
 	//	if ((userTemp <= temp[i]) && (userTemp > temp[i + 1])){
 	//		cout << i << endl;
@@ -210,13 +227,13 @@ double findWindChill(double userTemp, double userWind, double **tempDrop, int *t
 	//		else if (midpoint > userTemp)
 	//			closestTemp = i + 1;
 	//		cout << closestTemp << endl;
-
+    
 	//	}
-
+    
 	//}
-
-
-
+    
+    
+    
 	//for (int i = 0; i < row - 1; i++){
 	//	if (userWind >= wind[i] && userWind < wind[i + 1]){
 	//		double midpoint = (wind[i] + wind[i + 1]) / 2;
@@ -226,7 +243,7 @@ double findWindChill(double userTemp, double userWind, double **tempDrop, int *t
 	//			closestWind = i + 1;
 	//	}
 	//}
-
+    
 	return userTemp - tempDrop[closestWind][closestTemp];
-
+    
 }
